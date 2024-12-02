@@ -33,6 +33,6 @@ pub fn run() !void {
             similarity_score += item * @as(u32, @intFromBool(array_2[k] == array_1[j]));
     }
 
-    try std.io.getStdOut().writer().print("Sum is: {d}\nSimilarity score is: {d}", .{ sum, similarity_score });
+    try std.io.getStdOut().writer().print("Sum is: {d}\nSimilarity score is: {d}\n", .{ sum, similarity_score });
     file.close();
 }

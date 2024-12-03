@@ -15,13 +15,15 @@ pub fn run() !void {
         var i: usize = 0;
         while (true) {
             const start = i;
-            // WHY can't I perform bitwise operations on booleans?!
-            if (take_chars("do()", line, &i)) enabled = true;
+            const do = take_chars("do()", line, &i);
             i = start;
-            if (take_chars("don't()", line, &i)) enabled = false;
+            const dont = take_chars("don't()", line, &i);
+            // So this is how you do bitwise operations?
+            // WHERE IS XOR?!?!
+            enabled = (enabled or do) and !dont;
 
             const is_mul = take_chars("mul(", line, &i);
-            
+
             if (is_mul and enabled) {
                 var is_valid = true;
                 const first = take_while_is_num(line, &i);

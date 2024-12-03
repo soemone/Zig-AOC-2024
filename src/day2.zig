@@ -44,7 +44,7 @@ pub fn run() !void {
         if (is_safe) safe += 1;
     }
 
-    utils.print("{d} Safe reactor levels found!", .{safe});
+    utils.print("{d} Safe reactor levels found!\n", .{safe});
     file.close();
 }
 

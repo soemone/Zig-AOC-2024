@@ -23,7 +23,7 @@ pub fn run() !void {
         i += 1;
     }
 
-    utils.print("XMAS count is: {d}\nX-MAS count is: {d}", .{find_xmas(i, j), find_x_mas(i, j)});
+    utils.print("XMAS count is: {d}\nX-MAS count is: {d}\n", .{find_xmas(i, j), find_x_mas(i, j)});
 
     file.close();
 }

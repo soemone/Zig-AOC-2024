@@ -4,6 +4,7 @@ const day1 = @import("day1.zig");
 const day2 = @import("day2.zig");
 const day3 = @import("day3.zig");
 const day4 = @import("day4.zig");
+const day5 = @import("day5.zig");
 pub fn main() !void {
     utils.print("Day 1:\n", .{});
     try day1.run();
@@ -13,4 +14,6 @@ pub fn main() !void {
     try day3.run();
     utils.print("Day 4:\n", .{});
     try day4.run();
+    utils.print("Day 5:\n", .{});
+    try day5.run();
 }

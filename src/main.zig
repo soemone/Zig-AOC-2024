@@ -18,6 +18,6 @@ pub fn main() !void {
     try day4.run();
     utils.prints("Day 5:\n");
     try day5.run();
-    utils.prints("Day 6 [Part 2 algorithm is somehow wrong?]:\n");
+    utils.prints("Day 6:\n");
     try day6.run();
 }

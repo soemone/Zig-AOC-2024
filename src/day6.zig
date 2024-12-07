@@ -2,37 +2,23 @@ const std = @import("std");
 const utils = @import("utils.zig");
 const print = utils.print;
 
-// This is somehow wrong but I can't for the life of me figure out what's wrong with it
-// This code (Python) I copied online gives me 1995 which is apparently the correct answer, but my code gives 2160.
-// I have no idea what it does, though
-
-// G = {i+j*1j: c for i,r in enumerate(open('./src/input_day6.txt'))
-//                for j,c in enumerate(r.strip())}
-
-// start = min(p for p in G if G[p] == '^')
-
-// def walk(G):
-//     pos, dir, seen = start, -1, set()
-//     while pos in G and (pos,dir) not in seen:
-//         seen |= {(pos,dir)}
-//         if G.get(pos+dir) == "#":
-//             dir *= -1j
-//         else: pos += dir
-//     return {p for p,_ in seen}, (pos,dir) in seen
-
-// path = walk(G)[0]
-// print(len(path),
-//       sum(walk(G | {o: '#'})[1] for o in path))
+// Three things were not taken into account
+// A. The player starts at the original start location when testing a blockade
+// B. The player crosses a location many times, these may include viable locations, causing multiple counting of the same location
+// C. Due to the nature of how I tested the locations, the locations where a turn was required to be performed were not tested
+// They have now been fixed!!!
 
 const directions: [4][2]isize = .{ .{ 0, -1 }, .{ 0, 1 }, .{ -1, 0 }, .{ 1, 0 } };
 const Dir = enum { Up, Down, Left, Right };
 const Position = struct { x: isize, y: isize, d: Dir };
+
 var map: [2048][2048]u32 = undefined;
 var test_map: [2048][2048]u32 = undefined;
 var i: usize = 0;
 var j: usize = 0;
 var viable_loops: usize = 0;
 var steps: u32 = 0;
+var player_pos: Position = undefined;
 
 pub fn run() !void {
     var file = try std.fs.cwd().openFile("./src/input_day6.txt", .{});
@@ -50,6 +36,7 @@ pub fn run() !void {
             } else if (character == '^') {
                 pos = Position{ .x = @intCast(j), .y = @intCast(i), .d = Dir.Up };
                 map[i][j] = 3;
+                player_pos = pos;
             } else {
                 map[i][j] = 1;
             }
@@ -114,6 +101,11 @@ fn move(pos: *Position, map_arr: *[2048][2048]u32, check: bool) bool {
     // Recalculate the direction after hitting an obstacle
     recalc_dir(pos);
 
+    // Check at the corners too!!!
+    if (check and check_viability(pos)) {
+        viable_loops += 1;
+    }
+
     return true;
 }
 
@@ -126,11 +118,16 @@ fn check_viability(test_pos: *Position) bool {
     else
         return false;
 
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    const alloc = gpa.allocator();
+    // Start the player at the start of the map!!!
+    tmp_pos = player_pos;
+
     var points = std.ArrayList(Position).init(alloc);
 
     const initial_map_value = test_map[@abs(location_to_insert.y)][@abs(location_to_insert.x)];
+
+    // Check if an obstacle has already been placed here!!!
+    if (initial_map_value == 4 or initial_map_value == 0) return false;
+
     test_map[@abs(location_to_insert.y)][@abs(location_to_insert.x)] = 0;
 
     // Move to next point
@@ -138,7 +135,8 @@ fn check_viability(test_pos: *Position) bool {
         // Check if we've visited the point before
         for (points.items) |point| {
             if (point.x == tmp_pos.x and point.y == tmp_pos.y and point.d == tmp_pos.d) {
-                test_map[@abs(location_to_insert.y)][@abs(location_to_insert.x)] = initial_map_value;
+                // Mark this part of the map as already tested!!!
+                test_map[@abs(location_to_insert.y)][@abs(location_to_insert.x)] = 4;
                 return true;
             }
         }
@@ -149,7 +147,10 @@ fn check_viability(test_pos: *Position) bool {
 
     points.clearAndFree();
     // Fix map
-    test_map[@abs(location_to_insert.y)][@abs(location_to_insert.x)] = initial_map_value;
+    if (initial_map_value == 0)
+        test_map[@abs(location_to_insert.y)][@abs(location_to_insert.x)] = initial_map_value
+    else
+        test_map[@abs(location_to_insert.y)][@abs(location_to_insert.x)] = 5;
 
     return false;
 }

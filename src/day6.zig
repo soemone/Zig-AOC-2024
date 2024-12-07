@@ -11,7 +11,6 @@ const print = utils.print;
 const directions: [4][2]isize = .{ .{ 0, -1 }, .{ 0, 1 }, .{ -1, 0 }, .{ 1, 0 } };
 const Dir = enum { Up, Down, Left, Right };
 const Position = struct { x: isize, y: isize, d: Dir };
-
 var map: [2048][2048]u32 = undefined;
 var test_map: [2048][2048]u32 = undefined;
 var i: usize = 0;
@@ -121,6 +120,8 @@ fn check_viability(test_pos: *Position) bool {
     // Start the player at the start of the map!!!
     tmp_pos = player_pos;
 
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const alloc = gpa.allocator();
     var points = std.ArrayList(Position).init(alloc);
 
     const initial_map_value = test_map[@abs(location_to_insert.y)][@abs(location_to_insert.x)];
